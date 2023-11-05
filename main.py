@@ -21,6 +21,28 @@ def get_text_based_on_topic(topic):
     except Exception as e:
         return str(e)
 
+def add_more_text(existing_text, new_topic):
+  try:
+      response = openai.ChatCompletion.create(
+          model="gpt-3.5-turbo",
+          messages=[
+              {"role": "system", "content": "You are a helpful assistant."},
+              {"role": "user", "content": existing_text},
+              {"role": "user", "content": new_topic}
+          ]
+      )
+      return response.choices[0].message['content']
+  except Exception as e:
+      return str(e)
+
+def rewrite_text(text_to_rewrite):
+  try:
+      # Call OpenAI API with instruction to rewrite text
+      # (Implementation depends on how you'd like the rewriting to be done)
+      pass
+  except Exception as e:
+      return str(e)
+
 # HTML template string with JavaScript for AJAX
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -69,6 +91,22 @@ def index():
     else:
         # Return the empty page on a GET request
         return render_template_string(HTML_TEMPLATE)
+# New Flask route for adding more text
+@app.route('/add_more', methods=['POST'])
+def add_more():
+    data = request.get_json()
+    existing_text = data['existingText']
+    new_topic = data['newTopic']
+    additional_text = add_more_text(existing_text, new_topic)
+    return jsonify({'additionalText': additional_text})
+
+# New Flask route for rewriting text
+@app.route('/rewrite', methods=['POST'])
+def rewrite():
+    data = request.get_json()
+    text_to_rewrite = data['textToRewrite']
+    rewritten_text = rewrite_text(text_to_rewrite)
+    return jsonify({'rewrittenText': rewritten_text})
 
 # Run the Flask app
 if __name__ == '__main__':
